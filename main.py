@@ -18,6 +18,39 @@ def millisecondsToCET(mill):
     cet_aware_time = utc_aware_time.astimezone(cet_timezone)
     return cet_aware_time.strftime('%Y-%m-%d %H:%M:%S %Z')
 
+def chooseIcon(index, person, max):
+    if (index == person.indices[0]):
+        return folium.plugins.BeautifyIcon(
+            prefix="fa",
+            border_color="#00CED1",
+            border_width=12,
+            icon="house"
+        )
+
+    elif (index == max - 1):
+        return folium.plugins.BeautifyIcon(
+            prefix="fa",
+            border_color="#00CED1",
+            border_width=12,
+            icon="minus"
+        )
+
+    elif (index == 0):
+        return folium.plugins.BeautifyIcon(
+            prefix="fa",
+            border_color="#00CED1",
+            border_width=12,
+            icon="plus"
+        )
+
+    else:
+        return folium.plugins.BeautifyIcon(
+            prefix="fa",
+            border_color="#00CED1",
+            border_width=12,
+            inner_icon_style="opacity: 0"
+        )
+
 people = []
 routes = []
 
@@ -36,19 +69,22 @@ m = folium.Map(
 )
 
 for i in people:
-    coordinatesPolyLine =[[]]
+    coordinatesPolyLine = []
 
     for j in range(0, len(i.coords)):
-        coordinatesPolyLine[0].append([i.coords[j][0], i.coords[j][1]])
+        coordinatesPolyLine.append([i.coords[j][0], i.coords[j][1]])
+
+        iconColor = chooseIcon(j, i, len(i.coords))
 
         folium.Marker(
             location=[i.coords[j][0], i.coords[j][1]],
-            tooltip=millisecondsToCET(i.times[j])
+            tooltip=str(j) + "<br>" + millisecondsToCET(i.times[j]),
+            icon=iconColor
         ).add_to(m)
 
     folium.PolyLine(
         locations=coordinatesPolyLine,
-        color="#FF0000",
+        color="#00CED1",
         weight=5
     ).add_to(m)
 
