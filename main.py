@@ -1,14 +1,16 @@
 from datetime import datetime
 
 import pytz
-
 from Person import Person
 import folium
 import json
 with open("10.json", "r") as json_file:
     data = json.load(json_file)
-
 from folium.plugins import BeautifyIcon
+
+def calculateColor(howMany):
+    #16777148 is FFFFBC is decimal, white is omitted
+    return int(16777148 / howMany)
 
 def millisecondsToCET(mill):
     utc_time = datetime.utcfromtimestamp(mill)
@@ -18,11 +20,11 @@ def millisecondsToCET(mill):
     cet_aware_time = utc_aware_time.astimezone(cet_timezone)
     return cet_aware_time.strftime('%Y-%m-%d %H:%M:%S %Z')
 
-def chooseIcon(index, person, max):
+def chooseIcon(index, person, max, color):
     if (index == person.indices[0]):
         return folium.plugins.BeautifyIcon(
             prefix="fa",
-            border_color="#00CED1",
+            border_color="#" + str(color),
             border_width=12,
             icon="house"
         )
@@ -30,7 +32,7 @@ def chooseIcon(index, person, max):
     elif (index == max - 1):
         return folium.plugins.BeautifyIcon(
             prefix="fa",
-            border_color="#00CED1",
+            border_color="#" + str(color),
             border_width=12,
             icon="minus"
         )
@@ -38,7 +40,7 @@ def chooseIcon(index, person, max):
     elif (index == 0):
         return folium.plugins.BeautifyIcon(
             prefix="fa",
-            border_color="#00CED1",
+            border_color="#" + str(color),
             border_width=12,
             icon="plus"
         )
@@ -46,17 +48,21 @@ def chooseIcon(index, person, max):
     else:
         return folium.plugins.BeautifyIcon(
             prefix="fa",
-            border_color="#00CED1",
+            border_color="#" + str(color),
             border_width=12,
             inner_icon_style="opacity: 0"
         )
 
 people = []
 routes = []
+mySlice = slice(2, 8, 1)
 
 #Personen Objekte anlegen und deren feste Orte zuweisen
 for i in data["people"]:
     people.append(Person(i["id"], i["home_location"], i["workplace"], i["free_time_places"]))
+
+colorBreadth = calculateColor(len(people))
+color = 0
 
 #Wegpunkte in obige Objekte einfügen und Indizes der festen Orte speichern
 for i in range(len(data["daily_routes"][0])):
@@ -74,7 +80,10 @@ for i in people:
     for j in range(0, len(i.coords)):
         coordinatesPolyLine.append([i.coords[j][0], i.coords[j][1]])
 
-        iconColor = chooseIcon(j, i, len(i.coords))
+        iconColor = chooseIcon(j, i, len(i.coords), hex(color)[mySlice])
+        print(hex(color)[mySlice])
+        #increase color by colorBreath to guarantee distinguishable colors
+
 
         folium.Marker(
             location=[i.coords[j][0], i.coords[j][1]],
@@ -84,8 +93,9 @@ for i in people:
 
     folium.PolyLine(
         locations=coordinatesPolyLine,
-        color="#00CED1",
+        color="#" + str(hex(color)[mySlice]),
         weight=5
     ).add_to(m)
+    color = color + colorBreadth
 
 m.save("marker.html")
