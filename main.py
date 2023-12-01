@@ -20,6 +20,36 @@ def increaseLongitude():
         if not i.coords[j][1] in existingMarkers[1]:
             return
 
+def decreaseLatitude():
+    while True:
+        i.coords[j][0] = i.coords[j][0] - 0.000008
+        if not i.coords[j][0] in existingMarkers[0]:
+            return
+
+def decreaseLongitude():
+    while True:
+        i.coords[j][1] = i.coords[j][1] - 0.00008
+        if not i.coords[j][1] in existingMarkers[1]:
+            return
+
+def increaseOffset():
+    if i.coords[j][0] in existingMarkers[0]:
+        increaseLatitude()
+    existingMarkers[0].append(i.coords[j][0])
+
+    if i.coords[j][1] in existingMarkers[1]:
+        increaseLongitude()
+    existingMarkers[1].append(i.coords[j][1])
+
+def decreaseOffset():
+    if i.coords[j][0] in existingMarkers[0]:
+        decreaseLatitude()
+    existingMarkers[0].append(i.coords[j][0])
+
+    if i.coords[j][1] in existingMarkers[1]:
+        decreaseLongitude()
+    existingMarkers[1].append(i.coords[j][1])
+
 def calculateColor(howMany):
     #16777148 is FFFFBC is decimal, white is omitted
     return int(16777148 / howMany)
@@ -95,13 +125,12 @@ offsetPlus = True
 for i in people:
     coordinatesPolyLine = []
     for j in range(0, len(i.coords)):
-        if i.coords[j][0] in existingMarkers[0]:
-            increaseLatitude()
-        existingMarkers[0].append(i.coords[j][0])
-
-        if i.coords[j][1] in existingMarkers[1]:
-            increaseLongitude()
-        existingMarkers[1].append(i.coords[j][1])
+        if offsetPlus:
+            increaseOffset()
+            offsetPlus = False
+        else:
+            decreaseOffset()
+            offsetPlus = True
 
         coordinatesPolyLine.append([i.coords[j][0], i.coords[j][1]])
         chosenIcon = chooseIcon(j, i, len(i.coords), hex(color)[mySlice])
