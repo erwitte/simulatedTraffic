@@ -8,6 +8,18 @@ with open("10.json", "r") as json_file:
     data = json.load(json_file)
 from folium.plugins import BeautifyIcon
 
+def increaseLatitude():
+    while True:
+        i.coords[j][0] = i.coords[j][0] + 0.000008
+        if not i.coords[j][0] in existingMarkers[0]:
+            return
+
+def increaseLongitude():
+    while True:
+        i.coords[j][1] = i.coords[j][1] + 0.00008
+        if not i.coords[j][1] in existingMarkers[1]:
+            return
+
 def calculateColor(howMany):
     #16777148 is FFFFBC is decimal, white is omitted
     return int(16777148 / howMany)
@@ -84,17 +96,11 @@ for i in people:
     coordinatesPolyLine = []
     for j in range(0, len(i.coords)):
         if i.coords[j][0] in existingMarkers[0]:
-            while True:
-                i.coords[j][0] = i.coords[j][0] + 0.000008
-                if not i.coords[j][0] in existingMarkers[0]:
-                    break
+            increaseLatitude()
         existingMarkers[0].append(i.coords[j][0])
 
         if i.coords[j][1] in existingMarkers[1]:
-            while True:
-                i.coords[j][1] = i.coords[j][1] + 0.00008
-                if not i.coords[j][1] in existingMarkers[1]:
-                    break
+            increaseLongitude()
         existingMarkers[1].append(i.coords[j][1])
 
         coordinatesPolyLine.append([i.coords[j][0], i.coords[j][1]])
