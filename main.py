@@ -20,11 +20,13 @@ def millisecondsToCET(mill):
     cet_aware_time = utc_aware_time.astimezone(cet_timezone)
     return cet_aware_time.strftime('%Y-%m-%d %H:%M:%S %Z')
 
-def chooseIcon(index, person, max, color):
+def chooseIcon(index, person, max, _color):
+    if _color == "0":
+        _color = "ffffdd"
     if (index == person.indices[0]):
         return folium.plugins.BeautifyIcon(
             prefix="fa",
-            border_color="#" + str(color),
+            border_color="#" + str(_color),
             border_width=12,
             icon="house"
         )
@@ -32,7 +34,7 @@ def chooseIcon(index, person, max, color):
     elif (index == max - 1):
         return folium.plugins.BeautifyIcon(
             prefix="fa",
-            border_color="#" + str(color),
+            border_color="#" + str(_color),
             border_width=12,
             icon="minus"
         )
@@ -40,7 +42,7 @@ def chooseIcon(index, person, max, color):
     elif (index == 0):
         return folium.plugins.BeautifyIcon(
             prefix="fa",
-            border_color="#" + str(color),
+            border_color="#" + str(_color),
             border_width=12,
             icon="plus"
         )
@@ -48,13 +50,14 @@ def chooseIcon(index, person, max, color):
     else:
         return folium.plugins.BeautifyIcon(
             prefix="fa",
-            border_color="#" + str(color),
+            border_color="#" + str(_color),
             border_width=12,
             inner_icon_style="opacity: 0"
         )
 
 people = []
 routes = []
+#2 arrays for longitude and latitude
 existingMarkers = [[],[]]
 mySlice = slice(2, 8, 1)
 
@@ -75,15 +78,23 @@ m = folium.Map(
     zoom_start=14
 )
 
+#true = plus; false = minus
+offsetPlus = True
 for i in people:
     coordinatesPolyLine = []
     for j in range(0, len(i.coords)):
         if i.coords[j][0] in existingMarkers[0]:
-            i.coords[j][0] = i.coords[j][0] + 0.00005
+            while True:
+                i.coords[j][0] = i.coords[j][0] + 0.000008
+                if not i.coords[j][0] in existingMarkers[0]:
+                    break
         existingMarkers[0].append(i.coords[j][0])
 
         if i.coords[j][1] in existingMarkers[1]:
-            i.coords[j][1] = i.coords[j][1] + 0.0001
+            while True:
+                i.coords[j][1] = i.coords[j][1] + 0.00008
+                if not i.coords[j][1] in existingMarkers[1]:
+                    break
         existingMarkers[1].append(i.coords[j][1])
 
         coordinatesPolyLine.append([i.coords[j][0], i.coords[j][1]])
@@ -94,17 +105,21 @@ for i in people:
             tooltip=str(j) + "<br>" + millisecondsToCET(i.times[j]),
             icon=chosenIcon
         ).add_to(m)
+
+    #catch bug in first calculateColor call
     if i.id != 0:
         folium.PolyLine(
             locations=coordinatesPolyLine,
             color="#" + str(hex(color)[mySlice]),
-            weight=5
+            weight=5,
+            opacity=0.7
         ).add_to(m)
     else:
         folium.PolyLine(
             locations=coordinatesPolyLine,
-            color="#000000",
-            weight=5
+            color="#ffffdd",
+            weight=5,
+            opacity=0.8
         ).add_to(m)
     # increase color by colorBreath to guarantee distinguishable colors
     color = color + colorBreadth
