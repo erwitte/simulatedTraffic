@@ -70,7 +70,8 @@ def chooseIcon(index, person, max, _color):
             prefix="fa",
             border_color="#" + str(_color),
             border_width=12,
-            icon="house"
+            icon="house",
+            inner_icon_style="oposition: absolute; top: 50%;left: 50%; transform: translate(-50%, -100%);"
         )
 
     elif (index == max - 1):
@@ -78,7 +79,8 @@ def chooseIcon(index, person, max, _color):
             prefix="fa",
             border_color="#" + str(_color),
             border_width=12,
-            icon="minus"
+            icon="minus",
+            inner_icon_style="oposition: absolute; top: 50%;left: 50%; transform: translate(-50%, -100%);"
         )
 
     elif (index == 0):
@@ -86,7 +88,8 @@ def chooseIcon(index, person, max, _color):
             prefix="fa",
             border_color="#" + str(_color),
             border_width=12,
-            icon="plus"
+            icon="plus",
+            inner_icon_style = "oposition: absolute; top: 50%;left: 50%; transform: translate(-50%, -100%);"
         )
 
     else:
