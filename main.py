@@ -1,10 +1,8 @@
 from datetime import datetime
-
 import pytz
 from person import Person
 import folium
 import json
-
 with open("10.json", "r") as json_file:
     data = json.load(json_file)
 from folium.plugins import BeautifyIcon
@@ -24,6 +22,7 @@ def increase(what):
 def decrease(what):
     if what == "latitude":
         x = 0
+    # else is longitude
     else:
         x = 1
     while True:
@@ -109,7 +108,7 @@ people = []
 routes = []
 # 2 arrays for longitude and latitude
 existingMarkers = [[], []]
-#cut off of "0x" from hex
+# cut off of "0x" from hex
 mySlice = slice(2, 8, 1)
 
 # initialize Person objects with coordinates and locations (home, work, free time)
@@ -126,10 +125,11 @@ for i in range(len(data["daily_routes"][0])):
 
 m = folium.Map(
     location=(52.27, 8.04),
-    zoom_start=14
+    zoom_start=14,
+    prefer_canvas=True
 )
 
-#create and fill map
+# create and fill map
 
 # true = plus; false = minus
 offsetPlus = True
@@ -152,7 +152,7 @@ for i in people:
             icon=chosenIcon
         ).add_to(m)
 
-    #catch bug that occurs at id 0
+    # catch bug that occurs at id 0
     if i.id != 0:
         folium.PolyLine(
             locations=coordinatesPolyLine,
