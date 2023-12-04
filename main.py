@@ -170,4 +170,24 @@ for i in people:
     # increase color by colorBreath to guarantee distinguishable colors
     color = color + color_breadth
 
+print(people[0].coords)
+
+features = [
+    {
+        "type": "Feature",
+        "geometry": {
+            "type": "LineString",
+            "coordinates": peep.coords[i],
+        },
+        "properties": {
+            "id": peep.id,
+            "times": peep.times[i],
+        },
+    }
+    for peep in people
+    for i in range(len(peep.coords))
+]
+
+sorted_features = sorted(features, key=lambda x: x["properties"]["times"])
+
 m.save("marker.html")
