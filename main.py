@@ -121,6 +121,7 @@ color = 0
 # insert waypoints into upper objects and save indices of their locations (home, work, free time)
 for i in range(len(data["daily_routes"][0])):
     for j in range(len(data["daily_routes"][0][i]["coords"])):
+        times = data["daily_routes"][0][i]["times"][j]
         people[i].fill_arrays(data["daily_routes"][0][i]["coords"][j], data["daily_routes"][0][i]["times"][j], j)
 
 m = folium.Map(
@@ -170,24 +171,32 @@ for i in people:
     # increase color by colorBreath to guarantee distinguishable colors
     color = color + color_breadth
 
-print(people[0].coords)
-
 features = [
     {
         "type": "Feature",
         "geometry": {
             "type": "LineString",
-            "coordinates": peep.coords[i],
+            "coordinates": [peep.coords[i], peep.coords[i+1]],
         },
         "properties": {
             "id": peep.id,
-            "times": peep.times[i],
+            "times": [milliseconds_to_cet(peep.times[i])[:-4].replace(" ", "T"), milliseconds_to_cet(peep.times[i+1])[:-4].replace(" ", "T")] #string teilen, T einfügen und CET abschneiden
         },
     }
     for peep in people
-    for i in range(len(peep.coords))
+    for i in range(len(peep.coords) - 1)
 ]
 
 sorted_features = sorted(features, key=lambda x: x["properties"]["times"])
+
+folium.plugins.TimestampedGeoJson(
+    {
+        "type": "FeatureCollection",
+        "features": sorted_features,
+    },
+    period="PT1H",
+    add_last_point=True,
+).add_to(m)
+print(len(milliseconds_to_cet(people[0].times[0])))
 
 m.save("marker.html")
