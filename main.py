@@ -6,6 +6,7 @@ import json
 with open("10.json", "r") as json_file:
     data = json.load(json_file)
 from folium.plugins import BeautifyIcon
+from folium.plugins import TimestampedGeoJson
 
 
 def increase(what):
@@ -180,23 +181,26 @@ features = [
         },
         "properties": {
             "id": peep.id,
-            "times": [milliseconds_to_cet(peep.times[i])[:-4].replace(" ", "T"), milliseconds_to_cet(peep.times[i+1])[:-4].replace(" ", "T")] #string teilen, T einfügen und CET abschneiden
+            "times": [milliseconds_to_cet(peep.times[i])[:-4].replace(" ", "T"),
+                      milliseconds_to_cet(peep.times[i+1])[:-4].replace(" ", "T")],
+            "style": {
+                "color": "red",
+                "weight": 5
+            },
         },
     }
     for peep in people
     for i in range(len(peep.coords) - 1)
 ]
 
-sorted_features = sorted(features, key=lambda x: x["properties"]["times"])
-
-folium.plugins.TimestampedGeoJson(
+TimestampedGeoJson(
     {
         "type": "FeatureCollection",
-        "features": sorted_features,
+        "features": features,
     },
-    period="PT1H",
+    period="PT1M",
     add_last_point=True,
+    duration="PT5M"
 ).add_to(m)
-print(len(milliseconds_to_cet(people[0].times[0])))
 
 m.save("marker.html")
