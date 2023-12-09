@@ -177,7 +177,7 @@ features = [
         "type": "Feature",
         "geometry": {
             "type": "LineString",
-            "coordinates": [peep.coords[i], peep.coords[i+1]],
+            "coordinates": [[peep.coords[i][1], peep.coords[i][0]], [peep.coords[i+1][1], peep.coords[i+1][0]]],
         },
         "properties": {
             "id": peep.id,
