@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 import pytz
 from person import Person
@@ -133,43 +134,11 @@ m = folium.Map(
 
 # create and fill map
 
-# true = plus; false = minus
-offsetPlus = True
-for i in people:
-    coordinatesPolyLine = []
-    for j in range(0, len(i.coords)):
-        if offsetPlus:
-            increase_offset()
-            offsetPlus = False
-        else:
-            decrease_offset()
-            offsetPlus = True
+#todo   hier einfügen!
+colors = []
 
-        coordinatesPolyLine.append([i.coords[j][0], i.coords[j][1]])
-        chosenIcon = choose_icon(j, i, len(i.coords), hex(color)[mySlice])
-
-        folium.Marker(
-            location=[i.coords[j][0], i.coords[j][1]],
-            tooltip=str(j) + "<br>" + milliseconds_to_cet(i.times[j]),
-            icon=chosenIcon
-        ).add_to(m)
-
-    # catch bug that occurs at id 0
-    if i.id != 0:
-        folium.PolyLine(
-            locations=coordinatesPolyLine,
-            color="#" + str(hex(color)[mySlice]),
-            weight=5,
-            opacity=0.7
-        ).add_to(m)
-    else:
-        folium.PolyLine(
-            locations=coordinatesPolyLine,
-            color="#ffffdd",
-            weight=5,
-            opacity=0.8
-        ).add_to(m)
-    # increase color by colorBreath to guarantee distinguishable colors
+for i in range(0, len(people)):
+    colors.append(color)
     color = color + color_breadth
 
 features = [
@@ -177,20 +146,24 @@ features = [
         "type": "Feature",
         "geometry": {
             "type": "LineString",
-            "coordinates": [[peep.coords[i][1], peep.coords[i][0]], [peep.coords[i+1][1], peep.coords[i+1][0]]],
+            "coordinates": [[people[j].coords[i][1], people[j].coords[i][0]], [people[j].coords[i+1][1], people[j].coords[i+1][0]]],
         },
         "properties": {
-            "id": peep.id,
-            "times": [milliseconds_to_cet(peep.times[i])[:-4].replace(" ", "T"),
-                      milliseconds_to_cet(peep.times[i+1])[:-4].replace(" ", "T")],
+            "id": str(people[j].id),
+            "tooltip": str(people[j].id) + "<br>" + str(milliseconds_to_cet(people[j].times[i])),
+            "times": [milliseconds_to_cet(people[j].times[i])[:-4].replace(" ", "T"),
+                      milliseconds_to_cet(people[j].times[i+1])[:-4].replace(" ", "T")],
             "style": {
-                "color": "red",
-                "weight": 5
+                "color": "#" + str(hex(colors[j])[mySlice]) if people[j].id != 0 else "#000000",
+                "weight": 5,
+                "opacity": 0.8,
             },
+            "icon": "marker",
+
         },
     }
-    for peep in people
-    for i in range(len(peep.coords) - 1)
+    for j in range(len(people))
+    for i in range(len(people[j].coords) - 1)
 ]
 
 TimestampedGeoJson(
@@ -198,9 +171,11 @@ TimestampedGeoJson(
         "type": "FeatureCollection",
         "features": features,
     },
-    period="PT1M",
+    period="PT2M",
     add_last_point=True,
-    duration="PT5M"
+    duration="PT15M"
 ).add_to(m)
+
+print(os.getcwd())
 
 m.save("marker.html")
