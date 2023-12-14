@@ -136,6 +136,7 @@ m = folium.Map(
 
 #todo   hier einfügen!
 colors = []
+opacity = 0.8
 
 for i in range(0, len(people)):
     colors.append(color)
@@ -156,10 +157,14 @@ features = [
             "style": {
                 "color": "#" + str(hex(colors[j])[mySlice]) if people[j].id != 0 else "#000000",
                 "weight": 5,
-                "opacity": 0.8,
+                "opacity": opacity,
             },
-            "icon": "marker",
-
+            "icon": "circle",  #icon.divIcon
+            "iconstyle": {
+                "fillColor": "#" + str(hex(colors[j])[mySlice]) if people[j].id != 0 else "#000000",
+                "fillOpacity": opacity,
+                "radius": 3,
+            }
         },
     }
     for j in range(len(people))
