@@ -64,18 +64,32 @@ def set_offset():
 
 
 def set_other_offset(coords, times, _id):
-    for i in range(len(existing_coords_times)):
-        if existing_coords_times[i][0] != coords:
+    is_to_add = True
+    for i in range(len(test)):
+        if test[i][0] != coords:        # check if coordinates already exist
+            is_to_add = True
             continue
-        elif _id == existing_coords_times[i][2]:
+        elif _id == test[i][2]:     # delete to offset same id waypoints
             continue
-        else:
-            if existing_coords_times[i][1] == times:
-                continue
+        else:                           # if coordinates exist in array
+            if test[i][1] == times:     # check if times of those coordinates match
+                is_to_add = False
+                continue                # if so continue to prevent double entry
             else:
-                if 0 < existing_coords_times[i][1] - times < 600:
-                    print(str(existing_coords_times[i][0]) + " " + str(coords) + " " + str(existing_coords_times[i][1] - times) + " id: " + str(_id) + " id_ar: "
-                          + str(existing_coords_times[i][2]) + " timestampe_ar: " + str(existing_coords_times[i][1]))
+                if 0 < test[i][1] - times < 600:
+                    #print(str(test[i][0]) + " " + str(coords) + " " + str(test[i][1] - times) +
+                     #     " id: " + str(_id) + " id_ar: " + str(test[i][2]) + " timestampe_ar: " + str(test[i][1]))
+                    test.append([[coords[0]+0.008, coords[1]], times, _id])
+                    is_to_add = False
+                    print(test[-1])
+                    print()
+
+    if is_to_add:
+        test.append([coords, times, _id])
+
+    if len(test) == 0:
+        test.append([coords, times, _id])
+
 
 def calculate_color(how_many):
     # 16777148 is FFFFBC is decimal, white is omitted
