@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 import pytz
 from jinja2 import Template
@@ -63,32 +62,32 @@ def set_offset():
         offset_plus = True
 
 
-def set_other_offset(coords, times, _id):
+def set_other_offset(coords, _times, _id):
     is_to_add = True
-    for i in range(len(test)):
-        if test[i][0] != coords:        # check if coordinates already exist
+    for i in range(len(no_overlay)):
+        if no_overlay[i][0] != coords:        # check if coordinates already exist
             is_to_add = True
             continue
-        elif _id == test[i][2]:     # delete to offset same id waypoints
+        elif _id == no_overlay[i][2]:     # delete to offset same id waypoints
             continue
         else:                           # if coordinates exist in array
-            if test[i][1] == times:     # check if times of those coordinates match
+            if no_overlay[i][1] == _times:     # check if times of those coordinates match
                 is_to_add = False
                 continue                # if so continue to prevent double entry
             else:
-                if 0 < test[i][1] - times < 600:
+                if 0 < no_overlay[i][1] - _times < 600:
                     #print(str(test[i][0]) + " " + str(coords) + " " + str(test[i][1] - times) +
                      #     " id: " + str(_id) + " id_ar: " + str(test[i][2]) + " timestampe_ar: " + str(test[i][1]))
-                    test.append([[coords[0]+0.008, coords[1]], times, _id])
+                    #no_overlay.append([[coords[0]+0.008, coords[1]], _times, _id])
                     is_to_add = False
-                    print(test[-1])
-                    print()
+                    coords[0] = coords[0] + 0.0009
+                    no_overlay.append([coords, _times, _id])
 
     if is_to_add:
-        test.append([coords, times, _id])
+        no_overlay.append([coords, _times, _id])
 
-    if len(test) == 0:
-        test.append([coords, times, _id])
+    if len(no_overlay) == 0:
+        no_overlay.append([coords, _times, _id])
 
 
 def calculate_color(how_many):
@@ -96,8 +95,8 @@ def calculate_color(how_many):
     return int(16777148 / how_many)
 
 
-def milliseconds_to_cet(mill):
-    utc_time = datetime.utcfromtimestamp(mill)
+def seconds_to_cet(seconds):
+    utc_time = datetime.utcfromtimestamp(seconds)
     utc_timezone = pytz.timezone("UTC")
     utc_aware_time = utc_timezone.localize(utc_time)
     cet_timezone = pytz.timezone("Europe/Berlin")
@@ -114,7 +113,7 @@ def choose_icon(index, person, maximum, _color):
             border_color="#" + str(_color),
             border_width=12,
             icon="house",
-            inner_icon_style="oposition: absolute; top: 50%;left: 50%; transform: translate(-50%, -100%);"
+            inner_icon_style="position: absolute; top: 50%;left: 50%; transform: translate(-50%, -100%);"
         )
 
     elif index == maximum - 1:
@@ -123,7 +122,7 @@ def choose_icon(index, person, maximum, _color):
             border_color="#" + str(_color),
             border_width=12,
             icon="minus",
-            inner_icon_style="oposition: absolute; top: 50%;left: 50%; transform: translate(-50%, -100%);"
+            inner_icon_style="position: absolute; top: 50%;left: 50%; transform: translate(-50%, -100%);"
         )
 
     elif index == 0:
@@ -132,7 +131,7 @@ def choose_icon(index, person, maximum, _color):
             border_color="#" + str(_color),
             border_width=12,
             icon="plus",
-            inner_icon_style="oposition: absolute; top: 50%;left: 50%; transform: translate(-50%, -100%);"
+            inner_icon_style="position: absolute; top: 50%;left: 50%; transform: translate(-50%, -100%);"
         )
 
     else:
@@ -175,7 +174,7 @@ m = folium.Map(
 #set_other_offset(existing_coords_times[1][0])
 # create and fill map
 
-test = []
+no_overlay = []
 colors = []
 opacity = 0.8
 offset_plus = True
@@ -211,9 +210,9 @@ features = [
         },
         "properties": {
             "id": str(people[j].id),
-            "tooltip": str(data["people"][j]["id"]) + "<br>" + str(i+1) + "<br>" + str(milliseconds_to_cet(people[j].times[i])),
-            "times": [milliseconds_to_cet(people[j].times[i])[:-4].replace(" ", "T"),
-                      milliseconds_to_cet(people[j].times[i+1])[:-4].replace(" ", "T")],
+            "tooltip": str(data["people"][j]["id"]) + "<br>" + str(i+1) + "<br>" + str(seconds_to_cet(people[j].times[i])),
+            "times": [seconds_to_cet(people[j].times[i])[:-4].replace(" ", "T"),
+                      seconds_to_cet(people[j].times[i+1])[:-4].replace(" ", "T")],
             "style": {
                 "color": "#" + str(hex(colors[j])[mySlice]) if people[j].id != 0 else "#000000",
                 "weight": 5,
@@ -239,11 +238,9 @@ TimestampedGeoJson(
         "type": "FeatureCollection",
         "features": features,
     },
-    period="PT2M",
+    period="PT1M",
     add_last_point=True,
-    duration="PT15M"
+    duration="PT10M"
 ).add_to(m)
-
-print(os.getcwd())
 
 m.save("marker.html")
