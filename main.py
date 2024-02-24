@@ -12,7 +12,7 @@ from folium.plugins import BeautifyIcon
 from folium.plugins import TimestampedGeoJson
 
 
-def increase(longitude_latitude, times, degree):
+def increase(longitude_latitude, _times, degree):
     if longitude_latitude == "latitude":
         x = 0
     # else is longitude
@@ -23,17 +23,16 @@ def increase(longitude_latitude, times, degree):
         no_match_found = 0
         for marker in no_overlay:
             existing_coords = marker[0]  # legt eigenen array nur für bereits existierende koordinaten an
-            if existing_coords[x] == degree and marker[1] - times < 600:
+            if existing_coords[x] == degree and marker[1] - _times < 600:
                 degree = degree + 0.000015
                 break  # loop beenden um laufzeit zu verringern
             else:
                 no_match_found = no_match_found + 1
             if no_match_found == len(no_overlay):
-                is_present = False
                 return degree
 
 
-def decrease(longitude_latitude, times, degree):
+def decrease(longitude_latitude, _times, degree):
     if longitude_latitude == "latitude":
         x = 0
     # else is longitude
@@ -44,13 +43,12 @@ def decrease(longitude_latitude, times, degree):
         no_match_found = 0
         for marker in no_overlay:
             existing_coords = marker[0]  # legt eigenen array nur für bereits existierende koordinaten an
-            if existing_coords[x] == degree and marker[1] - times < 600:
+            if existing_coords[x] == degree and marker[1] - _times < 600:
                 degree = degree - 0.000015
                 break  # loop beenden um laufzeit zu verringern
             else:
                 no_match_found = no_match_found + 1
             if no_match_found == len(no_overlay):
-                is_present = False
                 return degree
 
 
@@ -74,7 +72,7 @@ def set_offset(coords, times, id):
     else:
         offset_plus = True
         coords = decrease_offset(coords, times)
-    no_overlay.append([coords, times, id])
+    return coords
 
 
 def set_other_offset(coords, _times, _id):
@@ -94,7 +92,8 @@ def set_other_offset(coords, _times, _id):
                     is_to_add = False
                     #coords[0] = coords[0] + 0.000015
                     #no_overlay.append([coords, _times, _id])
-                    set_offset(coords, _times, id)
+                    coords = set_offset(coords, _times, id)
+                    no_overlay.append([coords, _times, _id])
 
     if is_to_add:
         no_overlay.append([coords, _times, _id])
