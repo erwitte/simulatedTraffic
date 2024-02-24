@@ -12,55 +12,69 @@ from folium.plugins import BeautifyIcon
 from folium.plugins import TimestampedGeoJson
 
 
-def increase(what):
-    if what == "latitude":
-        x = 0
-    else:
-        x = 1
-    while True:
-        i.coords[j][x] = i.coords[j][x] + 0.000009
-        if not i.coords[j][x] in existingMarkers[x]:
-            return
-
-
-def decrease(what):
-    if what == "latitude":
+def increase(longitude_latitude, times, degree):
+    if longitude_latitude == "latitude":
         x = 0
     # else is longitude
     else:
         x = 1
-    while True:
-        i.coords[j][x] = i.coords[j][x] - 0.000009
-        if not i.coords[j][x] in existingMarkers[x]:
-            return
+    is_present = True
+    while is_present:
+        no_match_found = 0
+        for marker in no_overlay:
+            existing_coords = marker[0]  # legt eigenen array nur für bereits existierende koordinaten an
+            if existing_coords[x] == degree and marker[1] - times < 600:
+                degree = degree + 0.000015
+                break  # loop beenden um laufzeit zu verringern
+            else:
+                no_match_found = no_match_found + 1
+            if no_match_found == len(no_overlay):
+                is_present = False
+                return degree
 
 
-def increase_offset():
-    if i.coords[j][0] in existingMarkers[0]:
-        increase("latitude")
-    existingMarkers[0].append(i.coords[j][0])
+def decrease(longitude_latitude, times, degree):
+    if longitude_latitude == "latitude":
+        x = 0
+    # else is longitude
+    else:
+        x = 1
+    is_present = True
+    while is_present:
+        no_match_found = 0
+        for marker in no_overlay:
+            existing_coords = marker[0]  # legt eigenen array nur für bereits existierende koordinaten an
+            if existing_coords[x] == degree and marker[1] - times < 600:
+                degree = degree - 0.000015
+                break  # loop beenden um laufzeit zu verringern
+            else:
+                no_match_found = no_match_found + 1
+            if no_match_found == len(no_overlay):
+                is_present = False
+                return degree
 
-    if i.coords[j][1] in existingMarkers[1]:
-        increase("longitude")
-    existingMarkers[1].append(i.coords[j][1])
+
+def increase_offset(coords, times):
+    coords[0] = decrease("latitude", times, coords[0])
+    coords[1] = decrease("longitude", times, coords[1])
+    return coords
 
 
-def decrease_offset():
-    if i.coords[j][0] in existingMarkers[0]:
-        return decrease("latitude")
-
-    if i.coords[j][1] in existingMarkers[1]:
-        return decrease("longitude")
+def decrease_offset(coords, times):
+    coords[0] = decrease("latitude", times, coords[0])
+    coords[1] = decrease("longitude", times, coords[1])
+    return coords
 
 
-def set_offset():
+def set_offset(coords, times, id):
     global offset_plus
     if offset_plus:
-        increase_offset()
         offset_plus = False
+        coords = increase_offset(coords, times)
     else:
-        decrease_offset()
         offset_plus = True
+        coords = decrease_offset(coords, times)
+    no_overlay.append([coords, times, id])
 
 
 def set_other_offset(coords, _times, _id):
@@ -77,12 +91,10 @@ def set_other_offset(coords, _times, _id):
                 continue  # if so continue to prevent double entry
             else:
                 if 0 < no_overlay[i][1] - _times < 600:
-                    # print(str(test[i][0]) + " " + str(coords) + " " + str(test[i][1] - times) +
-                    #     " id: " + str(_id) + " id_ar: " + str(test[i][2]) + " timestampe_ar: " + str(test[i][1]))
-                    # no_overlay.append([[coords[0]+0.008, coords[1]], _times, _id])
                     is_to_add = False
-                    coords[0] = coords[0] + 0.000015
-                    no_overlay.append([coords, _times, _id])
+                    #coords[0] = coords[0] + 0.000015
+                    #no_overlay.append([coords, _times, _id])
+                    set_offset(coords, _times, id)
 
     if is_to_add:
         no_overlay.append([coords, _times, _id])
