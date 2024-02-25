@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 import pytz
 from jinja2 import Template
@@ -6,7 +7,7 @@ from person import Person
 import folium
 import json
 
-with open("10.json", "r") as json_file:
+with open(os.path.expanduser("~/Schreibtisch/alles/PycharmProjects/simulatedTraffic/10.json"), "r") as json_file:
     data = json.load(json_file)
 from folium.plugins import BeautifyIcon
 from folium.plugins import TimestampedGeoJson
@@ -185,6 +186,19 @@ m = folium.Map(
     zoom_start=14,
     prefer_canvas=True
 )
+# Erstellen der Legende als HTML
+legend_html = '''
+<div style="position: absolute; 
+     bottom: 100px; left: 50px; width: 4ß0px; height: 90px; 
+     border:2px solid grey; z-index:9999; font-size:14px;
+     background-color:red; opacity:1;">
+     &nbsp; Legende: <br>
+     &nbsp; ID1 <i style="background:red;width:10px;height:10px;display:inline-block;"></i><br>
+     &nbsp; ID2 <i style="background:blue;width:10px;height:10px;display:inline-block;"></i>
+</div>
+'''
+
+m.get_root().html.add_child(folium.Element(legend_html))
 # set_other_offset(existing_coords_times[1][0])
 # create and fill map
 
@@ -293,5 +307,14 @@ TimestampedGeoJson(
     add_last_point=True,
     duration="PT10M"
 ).add_to(m)
+
+id_farben = {
+    "ID1": "red",
+    "ID2": "blue",
+    "ID3": "green",
+    "ID4": "purple"
+}
+
+
 
 m.save("marker.html")
