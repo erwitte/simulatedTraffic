@@ -191,14 +191,23 @@ legend_html = '''
 <div style="position: absolute; 
      bottom: 100px; left: 50px; width: 4ß0px; height: 90px; 
      border:2px solid grey; z-index:9999; font-size:14px;
-     background-color:red; opacity:1;">
+     background-color:red; opacity:1; overflow: auto;">
      &nbsp; Legende: <br>
      &nbsp; ID1 <i style="background:red;width:10px;height:10px;display:inline-block;"></i><br>
      &nbsp; ID2 <i style="background:blue;width:10px;height:10px;display:inline-block;"></i>
-</div>
 '''
+test = """
+<br>
+    &nbsp; ID1 <i style="background:red;width:10px;height:10px;display:inline-block;"></i><br>
+    &nbsp; ID2 <i style="background:blue;width:10px;height:10px;display:inline-block;"></i>
+    </div>
+    """
 
-m.get_root().html.add_child(folium.Element(legend_html))
+id_array = []
+for current_id in range(len(data["people"])):
+    id_array.append(data["people"][current_id]["id"])
+
+m.get_root().html.add_child(folium.Element(legend_html + test))
 # set_other_offset(existing_coords_times[1][0])
 # create and fill map
 
