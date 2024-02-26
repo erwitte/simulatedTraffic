@@ -189,10 +189,10 @@ m = folium.Map(
 # Erstellen der Legende als HTML
 legend_html = '''
 <div style="position: absolute; 
-     bottom: 100px; left: 50px; width: 200px; height: 90px; 
+     top: 0px; right: 0px; width: 100px; height: 150px; 
      border:2px solid grey; z-index:9999; font-size:14px;
-     opacity:1; overflow: auto;">
-     &nbsp; Legende: <br>
+     overflow: auto; background: rgba(188, 188, 188, 0.6);">
+     &nbsp; Legende:
 '''
 
 id_array = []
@@ -217,8 +217,8 @@ for i in range(len(colors)):
     id_color = "#" + str(hex(colors[id_array[i]]))[mySlice] if id_array[i] != 0 else "#000000"
     id_legende_html += ("""
     <br>
-    &nbsp; ID: """ + str(id_array[i]) + """<div style="background:""" + id_color +
-                        """;width:20px;height:10px;display:inline-block;"></div>""")
+    &nbsp; ID: """ + str(id_array[i]) + """&nbsp; <div style="background:""" + id_color +
+                        """;width:30px;height:15px;display:inline-block;"></div>""")
 
 id_legende_html += """</div>"""
 m.get_root().html.add_child(folium.Element(legend_html + id_legende_html))
@@ -228,40 +228,7 @@ for j in range(len(people)):
         set_other_offset(data["daily_routes"][0][j]["coords"][i], data["daily_routes"][0][j]["times"][i],
                          data["people"][j]["id"])
 
-features1 = [
-    {
-        "type": "Feature",
-        "geometry": {
-            "type": "LineString",
-            "coordinates": [[people[j].coords[i][1], people[j].coords[i][0]],
-                            [people[j].coords[i + 1][1], people[j].coords[i + 1][0]]],
-        },
-        "properties": {
-            "id": str(people[j].id),
-            "tooltip": str(data["people"][j]["id"]) + "<br>" + str(i + 1) + "<br>" + str(
-                seconds_to_cet(people[j].times[i])),
-            "times": [seconds_to_cet(people[j].times[i])[:-4].replace(" ", "T"),
-                      seconds_to_cet(people[j].times[i + 1])[:-4].replace(" ", "T")],
-            "style": {
-                "color": "#" + str(hex(colors[j])[mySlice]) if people[j].id != 0 else "#000000",
-                "weight": 5,
-                "opacity": opacity,
-            },
-            "icon": "circle",  # icon.divIcon
-            "iconstyle": {
-                "fillColor": "#" + str(hex(colors[j])[mySlice]) if people[j].id != 0 else "#000000",
-                "fillOpacity": opacity,
-                "radius": 3,
-                "line_join": "square",
-                # "iconUrl": "house-solid.svg",
-                # "js": js_code,
-            },
-        },
-    }
-    for j in range(len(people))
-    for i in range(len(people[j].coords) - 1)
-]
-# in features sind 3 einträge für coords
+
 features = [
     {
         "type": "Feature",
@@ -277,9 +244,6 @@ features = [
             "tooltip": str(no_overlay[i][2]) + "<br>" + str(i + 1) + "<br>" + str(seconds_to_cet(no_overlay[i][1])),
             "times": [seconds_to_cet(no_overlay[i][1])[:-4].replace(" ", "T"),
                       seconds_to_cet(no_overlay[i + 1][1])[:-4].replace(" ", "T")],
-            # if no_overlay[i][2] == no_overlay[i + 1][2] else
-            #   [seconds_to_cet(no_overlay[i][1])[:-4].replace(" ", "T"),
-            #  seconds_to_cet(no_overlay[i][1])[:-4].replace(" ", "T")],
             "style": {
                 "color": "#" + str(hex(colors[no_overlay[i][2]])[mySlice]) if no_overlay[i][2] != 0 else "#000000",
                 "weight": 5,
@@ -306,12 +270,5 @@ TimestampedGeoJson(
     add_last_point=True,
     duration="PT10M"
 ).add_to(m)
-
-id_farben = {
-    "ID1": "red",
-    "ID2": "blue",
-    "ID3": "green",
-    "ID4": "purple"
-}
 
 m.save("marker.html")
