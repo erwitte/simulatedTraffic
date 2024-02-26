@@ -91,8 +91,8 @@ def set_other_offset(coords, _times, _id):
             else:
                 if 0 < no_overlay[i][1] - _times < 600:
                     is_to_add = False
-                    #coords[0] = coords[0] + 0.000015
-                    #no_overlay.append([coords, _times, _id])
+                    # coords[0] = coords[0] + 0.000015
+                    # no_overlay.append([coords, _times, _id])
                     coords = set_offset(coords, _times, id)
                     no_overlay.append([coords, _times, _id])
 
@@ -189,25 +189,16 @@ m = folium.Map(
 # Erstellen der Legende als HTML
 legend_html = '''
 <div style="position: absolute; 
-     bottom: 100px; left: 50px; width: 4ß0px; height: 90px; 
+     bottom: 100px; left: 50px; width: 200px; height: 90px; 
      border:2px solid grey; z-index:9999; font-size:14px;
-     background-color:red; opacity:1; overflow: auto;">
+     opacity:1; overflow: auto;">
      &nbsp; Legende: <br>
-     &nbsp; ID1 <i style="background:red;width:10px;height:10px;display:inline-block;"></i><br>
-     &nbsp; ID2 <i style="background:blue;width:10px;height:10px;display:inline-block;"></i>
 '''
-test = """
-<br>
-    &nbsp; ID1 <i style="background:red;width:10px;height:10px;display:inline-block;"></i><br>
-    &nbsp; ID2 <i style="background:blue;width:10px;height:10px;display:inline-block;"></i>
-    </div>
-    """
 
 id_array = []
 for current_id in range(len(data["people"])):
     id_array.append(data["people"][current_id]["id"])
 
-m.get_root().html.add_child(folium.Element(legend_html + test))
 # set_other_offset(existing_coords_times[1][0])
 # create and fill map
 
@@ -219,19 +210,18 @@ offset_plus = True
 for i in range(0, len(people)):
     colors.append(color)
     color = color + color_breadth
-    # set_offset()
 
-js = Template(
-    """
-    L.circleMarker({
-    radius: 3,
-    fillOpacity: 1,
-    "lineJoin": "square",
-    })
-    """
-)
+id_legende_html = ""
 
-js_code = js.render()
+for i in range(len(colors)):
+    id_color = "#" + str(hex(colors[id_array[i]]))[mySlice] if id_array[i] != 0 else "#000000"
+    id_legende_html += ("""
+    <br>
+    &nbsp; ID: """ + str(id_array[i]) + """<div style="background:""" + id_color +
+                        """;width:20px;height:10px;display:inline-block;"></div>""")
+
+id_legende_html += """</div>"""
+m.get_root().html.add_child(folium.Element(legend_html + id_legende_html))
 
 for j in range(len(people)):
     for i in range(len(people[j].coords)):
@@ -287,9 +277,9 @@ features = [
             "tooltip": str(no_overlay[i][2]) + "<br>" + str(i + 1) + "<br>" + str(seconds_to_cet(no_overlay[i][1])),
             "times": [seconds_to_cet(no_overlay[i][1])[:-4].replace(" ", "T"),
                       seconds_to_cet(no_overlay[i + 1][1])[:-4].replace(" ", "T")],
-                        #if no_overlay[i][2] == no_overlay[i + 1][2] else
-                         #   [seconds_to_cet(no_overlay[i][1])[:-4].replace(" ", "T"),
-                          #  seconds_to_cet(no_overlay[i][1])[:-4].replace(" ", "T")],
+            # if no_overlay[i][2] == no_overlay[i + 1][2] else
+            #   [seconds_to_cet(no_overlay[i][1])[:-4].replace(" ", "T"),
+            #  seconds_to_cet(no_overlay[i][1])[:-4].replace(" ", "T")],
             "style": {
                 "color": "#" + str(hex(colors[no_overlay[i][2]])[mySlice]) if no_overlay[i][2] != 0 else "#000000",
                 "weight": 5,
@@ -323,7 +313,5 @@ id_farben = {
     "ID3": "green",
     "ID4": "purple"
 }
-
-
 
 m.save("marker.html")
